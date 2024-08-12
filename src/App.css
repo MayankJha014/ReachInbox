@@ -13,3 +13,7 @@
 .login_container{
     background: linear-gradient(138.97deg, #111214 5.16%, #121212 105.18%);
 }
+
+.active > div> div > svg>path{
+    fill: white;
+}
