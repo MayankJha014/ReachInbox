@@ -1,0 +1,15 @@
+.background_color {
+    @apply bg-black
+}
+
+.screen {
+    @apply flex flex-col h-screen
+}
+
+
+.login_button {
+    background: linear-gradient(91.73deg, #4B63DD -2.99%, rgba(5, 36, 191, 0.99) 95.8%);
+}
+.login_container{
+    background: linear-gradient(138.97deg, #111214 5.16%, #121212 105.18%);
+}
