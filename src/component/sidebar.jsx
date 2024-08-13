@@ -208,7 +208,7 @@ const Sidebar = ({ children }) => {
           </div>
         </div>
         <div
-          className={`w-full relative block  flex-1 min-h-full  scroll-smooth overflow-y-auto`}
+          className={`w-full relative block  flex-1 min-h-full  scroll-smooth overflow-hidden`}
         >
           <Navbar />
           {children}
