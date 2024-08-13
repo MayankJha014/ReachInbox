@@ -33,7 +33,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/",
+      link: "/dash/home",
     },
     {
       icon: (
@@ -60,7 +60,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/search",
+      link: "/dash/search",
     },
     {
       icon: (
@@ -79,7 +79,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/msg",
+      link: "/dash/msg",
     },
     {
       icon: (
@@ -98,7 +98,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/tele",
+      link: "/dash/tele",
     },
     {
       icon: (
@@ -117,7 +117,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/list",
+      link: "/dash/list",
     },
     {
       icon: (
@@ -136,7 +136,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/box",
+      link: "/dash/box",
     },
     {
       icon: (
@@ -163,7 +163,7 @@ const Sidebar = ({ children }) => {
           </svg>
         </div>
       ),
-      link: "/stats",
+      link: "/dash/stats",
     },
   ];
 
@@ -190,7 +190,7 @@ const Sidebar = ({ children }) => {
                       key={index}
                       to={x.link}
                       className="contents"
-                      activeClassName="active"
+                      activeclassname="active"
                     >
                       <div className="flex items-center py-6 mx-auto w-full object-scale-down aspect-videoe">
                         {x.icon}

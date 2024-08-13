@@ -5,18 +5,31 @@ import Navbar from "./component/navbar";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Sidebar from "./component/sidebar";
 import Home from "./component/home";
+import EmptyMsgBox from "./component/empty";
+import Loader from "./component/loader";
 
 const App = () => {
   return (
     <div>
       <BrowserRouter>
         {/* <LoginScreen /> */}
-
-        <Sidebar>
-          <Routes>
-            <Route path="/" element={<Home />} />
-          </Routes>{" "}
-        </Sidebar>
+        <Routes>
+          <Route path="/" element={<LoginScreen />} exact />
+          <Route path="/loader" element={<Loader />} exact />
+          <Route
+            element={
+              <div>
+                <Sidebar>
+                  <Routes>
+                    <Route path="/box" element={<Home />} />
+                    <Route path="/*" element={<EmptyMsgBox />} />
+                  </Routes>{" "}
+                </Sidebar>
+              </div>
+            }
+            path="/dash/*"
+          />
+        </Routes>{" "}
       </BrowserRouter>
     </div>
   );

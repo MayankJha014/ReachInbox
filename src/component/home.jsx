@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import EmptyMsgBox from "./empty";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaRotateRight } from "react-icons/fa6";
@@ -14,9 +14,22 @@ import PhotoImg from "../assets/photo.svg";
 import EmojiImg from "../assets/emoji.svg";
 import FrndImg from "../assets/frnd.svg";
 import CodeImg from "../assets/code.svg";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const Navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    console.log(token);
+    if (!token) {
+      Navigate("/");
+    }
+  }, []);
+
   const [replyBox, setReplyBox] = useState(false);
+
   return (
     <>
       <div className="flex max-h-full h-full">
@@ -39,14 +52,14 @@ const Home = () => {
             <span className="px-2 text-white font-semibold">25/25</span>Index
             Selected
           </div>
-          <form class="flex items-center justify-center my-4 mx-1">
-            <label for="simple-search" class="sr-only">
+          <form className="flex items-center justify-center my-4 mx-1">
+            <label for="simple-search" className="sr-only">
               Search
             </label>
-            <div class="relative w-full ">
-              <div class="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+            <div className="relative w-full ">
+              <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
                 <svg
-                  class="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
                   fill="currentColor"
                   viewBox="0 0 20 20"
                   xmlns="http://www.w3.org/2000/svg"
@@ -61,7 +74,7 @@ const Home = () => {
               <input
                 type="text"
                 id="simple-search"
-                class="bg-[#23272C] border border-white/10 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2  "
+                className="bg-[#23272C] border border-white/10 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2  "
                 placeholder="Search"
                 required
               />
@@ -108,21 +121,21 @@ const Home = () => {
           </div>
         </div>
         <div className=" flex-1 flex flex-col h-[92%] relative">
-          <div class="py-3 px-3 bg-grey-lighter flex flex-row justify-between items-center border-b border-b-[#33383F]">
-            <div class="flex items-center">
+          <div className="py-3 px-3 bg-grey-lighter flex flex-row justify-between items-center border-b border-b-[#33383F]">
+            <div className="flex items-center">
               <div>
                 <img
-                  class="w-10 h-10 rounded-full"
+                  className="w-10 h-10 rounded-full"
                   src="https://darrenjameseeley.files.wordpress.com/2014/09/expendables3.jpeg"
                 />
               </div>
-              <div class="ml-4">
-                <p class="text-white">Orlando</p>
-                <p class="text-white/50 text-sm">orladom@gmail.com</p>
+              <div className="ml-4">
+                <p className="text-white">Orlando</p>
+                <p className="text-white/50 text-sm">orladom@gmail.com</p>
               </div>
             </div>
 
-            <div class="flex gap-3">
+            <div className="flex gap-3">
               <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
                 <span className="p-2 bg-yellow-100 rounded-full w-3 h-3">
                   {/* <span className="px-1 py-0.5 bg-yellow-500 rounded-full "></span> */}
@@ -245,7 +258,7 @@ const ChatBox = ({ email, date, msg, badges }) => {
         <p className="text-[#E1E0E0] mt-1 mb-1.5">{msg}</p>
         <div className="flex gap-2 flex-wrap">
           {badges.map((x, index) => (
-            <span class="inline-flex items-center mt-2 px-2 py-1 bg-[#222426]  rounded-full text-sm font-semibold">
+            <span className="inline-flex items-center mt-2 px-2 py-1 bg-[#222426]  rounded-full text-sm font-semibold">
               <svg
                 width="15"
                 height="16"
@@ -260,7 +273,7 @@ const ChatBox = ({ email, date, msg, badges }) => {
                 />
               </svg>
 
-              <span class="ml-1 text-[#57E0A6] whitespace-nowrap">
+              <span className="ml-1 text-[#57E0A6] whitespace-nowrap">
                 {x.title}
               </span>
             </span>
