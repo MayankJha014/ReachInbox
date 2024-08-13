@@ -17,3 +17,9 @@
 .active > div> div > svg>path{
     fill: white;
 }
+
+.text-sb{
+    @apply text-white font-semibold
+}
+
+
