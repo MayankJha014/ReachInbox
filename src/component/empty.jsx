@@ -17,8 +17,8 @@ const EmptyMsgBox = () => {
   return (
     <div className="flex max-h-full h-full">
       <div
-        className={`flex flex-col justify-center items-center h-4/5 w-full  ${
-          theme.theme ? " text-white " : " text-black"
+        className={`flex flex-col justify-center items-center h-full w-full  ${
+          theme.theme ? " text-white bg-black" : " text-black bg-white"
         }`}
       >
         <img src={NoMsg} alt="" />
