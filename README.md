@@ -10,24 +10,25 @@ With just a single prompt, ReachInbox sets the wheels in motion by prospecting a
 
 ### **Technologies Used:**
 
-- **React.js**: For building the user interface of the application.
-- **Tailwind CSS**: Utilized for styling the components with utility-first CSS.
-- **Vite.js**: A build tool that provides fast development and optimized production builds.
-- **TypeScript**: Used to add static typing to JavaScript, ensuring type safety.
-- **Vercel**: Deployed the frontend application on Vercel for hosting and continuous deployment.
+- **ReactJS**: Utilized for building dynamic and responsive user interfaces, enabling a seamless user experience with reusable components.
+- **TailwindCSS**: Employed for styling, providing a utility-first approach to create a visually appealing and consistent design with minimal custom CSS.
+- **JavaScript**: Core language used for developing interactive features and ensuring robust client-side functionality.
+- **Redux**: Implemented for state management, allowing for predictable state changes and efficient data flow across the application.
+- **Vercel**: Used for deploying and hosting the application, offering a fast and reliable platform for continuous integration and delivery.
 
 ### **Functionalities:**
 
 - AI-driven multi-channel outreach across Twitter, LinkedIn, email, and phone.
 - Lead prospecting, verification, and personalized sequence crafting.
 - Real-time notifications for responsive prospects.
+- Implemented keyboard shortcuts "D" for delete and "R" for reply.
 
 ### **Steps to Run Locally:**
 
 1. **Clone the Repository:**
 
    ```bash
-   git clone https://github.com/vishnukantshukla/ReachInBox_Project.git
+   git clone https://github.com/MayankJha014/ReachInbox.git
    ```
 
 2. **Install Dependencies:**
@@ -45,14 +46,18 @@ This will start the development server and allow you to interact with the applic
 
 ## Preview:
 
-![ReachBox](https://github.com/user-attachments/assets/c6274f40-6b38-4525-bf92-cb93da778b4a)
+![Screenshot 2024-08-14 172213](https://github.com/user-attachments/assets/a581e841-c17d-47ad-b300-c66666bd8973)
 
-![ReachBox-black](https://github.com/user-attachments/assets/3f344bf7-c2d1-432f-b851-94825e5e5e45)
+![Screenshot 2024-08-14 172306](https://github.com/user-attachments/assets/f037f5a6-42af-4885-b465-f552aaf7ceb8)
 
-![ReachBox-content](https://github.com/user-attachments/assets/5ecd13ff-29c7-4d6c-b562-c778871e5c9b)
+![Screenshot 2024-08-14 172520](https://github.com/user-attachments/assets/4784d0c8-8113-4d64-83fd-bf7f9883d3c9)
 
-![ReachBox_mail](https://github.com/user-attachments/assets/18a376d5-9c97-40bb-85e9-a8d46ff2bd30)
+![Screenshot 2024-08-14 172700](https://github.com/user-attachments/assets/a2773f17-c511-4445-a521-9047af71901d)
 
-![ReachBox-delete](https://github.com/user-attachments/assets/0587b84c-73ce-4beb-b896-8653b5a9f84d)
+![Screenshot 2024-08-14 172727](https://github.com/user-attachments/assets/c33b3c33-f2b5-48cd-a5e0-1da13a49e334)
 
-![ReachBox-White](https://github.com/user-attachments/assets/9e793754-eb09-47bb-8bb8-94dd645898c6)
+![Screenshot 2024-08-14 173052](https://github.com/user-attachments/assets/6155266f-c405-4625-900d-ffa59e51fe32)
+
+![Screenshot 2024-08-14 173125](https://github.com/user-attachments/assets/b124af60-2cf9-433b-9acd-53474b5227e1)
+
+![Screenshot 2024-08-14 173208](https://github.com/user-attachments/assets/041b2286-0e66-42cc-aed8-63dde693d1be)

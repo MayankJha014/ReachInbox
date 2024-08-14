@@ -106,8 +106,8 @@ const Home = () => {
 
   return isLoading ? (
     <div
-      className={`flex items-center justify-center w-full h-[100vh] text-gray-900  ${
-        theme.theme ? "bg-gray-950 " : "bg-black/10"
+      className={`flex items-center justify-center w-full h-[100vh]   ${
+        theme.theme ? "bg-black text-white" : "bg-black/10 text-gray-900"
       } `}
     >
       <div>
@@ -858,13 +858,13 @@ const ReplyBox = ({
     <div
       className={`absolute overflow-hidden bottom-0 border w-[80%] ${
         theme
-          ? " bg-[#141517] border-b-[#34383D] text-white"
+          ? " bg-[#141517] border-white/15  text-white"
           : " bg-white border-b-[#E0E0E0] text-black"
       }  rounded-xl mx-10`}
     >
       <div
         className={`flex justify-between ${
-          theme ? " *:bg-[#23272C] " : " bg-black/40"
+          theme ? " bg-[#23272C] " : " bg-black/40"
         }  py-2 px-6 rounded-t-lg`}
       >
         <p
