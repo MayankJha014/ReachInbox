@@ -1001,6 +1001,8 @@ const DeletePopup = ({
   setactiveId,
   theme,
 }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="fixed top-0 left-0 backdrop-blur-md w-full h-full flex justify-center items-center bg-[#8484847D] bg-opacity-50 z-50">
       <div
@@ -1034,7 +1036,7 @@ const DeletePopup = ({
                 dispatch(getAllListMails()).then((x) => {
                   if (x.payload.data.length == 0) {
                     localStorage.clear();
-                    Navigate("/");
+                    navigate("/");
                   } else {
                     setactiveId(x.payload.data[0]);
                     dispatch(getThreadsById(x.payload.data[0]?.threadId));
