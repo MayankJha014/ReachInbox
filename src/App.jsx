@@ -7,11 +7,13 @@ import Sidebar from "./component/sidebar";
 import Home from "./component/home";
 import EmptyMsgBox from "./component/empty";
 import Loader from "./component/loader";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <div>
       <BrowserRouter>
+        <Toaster />
         {/* <LoginScreen /> */}
         <Routes>
           <Route path="/" element={<LoginScreen />} exact />

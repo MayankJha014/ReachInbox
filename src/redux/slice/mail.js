@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllListMails } from "../action/api";
+import { getAllListMails, resetMail } from "../action/api";
 
 export const mailSlice = createSlice({
   name: "mail",
@@ -18,6 +18,18 @@ export const mailSlice = createSlice({
       state.isSuccess = action.payload.success;
     });
     builder.addCase(getAllListMails.rejected, (state, action) => {
+      state.isLoading = false;
+      state.isSuccess = false;
+    });
+    builder.addCase(resetMail.pending, (state, action) => {
+      state.isLoading = true;
+    });
+    builder.addCase(resetMail.fulfilled, (state, action) => {
+      state.isLoading = false;
+
+      state.isSuccess = action.payload.success;
+    });
+    builder.addCase(resetMail.rejected, (state, action) => {
       state.isLoading = false;
       state.isSuccess = false;
     });

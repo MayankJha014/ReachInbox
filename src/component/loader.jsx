@@ -1,9 +1,12 @@
 import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
+import { resetMail } from "../redux/action/api";
 
 const Loader = () => {
   const Navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
@@ -14,7 +17,9 @@ const Loader = () => {
     console.log(token);
     if (token) {
       localStorage.setItem("token", `Bearer ${token}`);
-      Navigate("/dash/home");
+      dispatch(resetMail()).then(() => {
+        Navigate("/dash/home");
+      });
     }
   }, []);
 

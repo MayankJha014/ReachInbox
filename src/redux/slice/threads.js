@@ -1,5 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAllListMails, getThreadsById } from "../action/api";
+import {
+  deleteThreadsById,
+  getAllListMails,
+  getThreadsById,
+} from "../action/api";
 
 export const threadSlice = createSlice({
   name: "thread",
@@ -7,6 +11,7 @@ export const threadSlice = createSlice({
     isLoading: true,
     threadData: null,
     isSuccess: null,
+    isMessage: null,
   },
   extraReducers: (builder) => {
     builder.addCase(getThreadsById.pending, (state, action) => {
@@ -18,6 +23,18 @@ export const threadSlice = createSlice({
       state.isSuccess = action.payload.success;
     });
     builder.addCase(getThreadsById.rejected, (state, action) => {
+      state.isLoading = false;
+      state.isSuccess = false;
+    });
+    builder.addCase(deleteThreadsById.pending, (state, action) => {
+      state.isLoading = true;
+    });
+    builder.addCase(deleteThreadsById.fulfilled, (state, action) => {
+      state.isLoading = false;
+      state.isMessage = action.payload.message;
+      state.isSuccess = action.payload.success;
+    });
+    builder.addCase(deleteThreadsById.rejected, (state, action) => {
       state.isLoading = false;
       state.isSuccess = false;
     });

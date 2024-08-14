@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { act, useEffect, useMemo, useRef, useState } from "react";
 import EmptyMsgBox from "./empty";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaRotateRight } from "react-icons/fa6";
@@ -16,13 +16,29 @@ import FrndImg from "../assets/frnd.svg";
 import CodeImg from "../assets/code.svg";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllListMails, getThreadsById } from "../redux/action/api";
+import {
+  deleteThreadsById,
+  getAllListMails,
+  getThreadsById,
+  replyMail,
+  resetMail,
+} from "../redux/action/api";
 import Loader from "./loader";
 import dateFormat from "dateformat";
+import toast from "react-hot-toast";
+import ReactQuill from "react-quill";
+import { Editable, Slate, withReact } from "slate-react";
+import { createEditor } from "slate";
+import JoditEditor from "jodit-react";
 
 const Home = () => {
   const Navigate = useNavigate();
   const location = useLocation();
+  const [replyBox, setReplyBox] = useState(false);
+  const [deletePop, setDeletePop] = useState(false);
+  const [activeId, setactiveId] = useState(0);
+  const [replyText, setReplyText] = useState("");
+  const [subjectText, setSubjectText] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -39,17 +55,44 @@ const Home = () => {
     (state) => state.threads
   );
 
+  useEffect(() => {
+    console.log(replyText);
+  }, [replyText]);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(getAllListMails()).then((x) => {
-      console.log(x);
-      dispatch(getThreadsById(x.payload.data[0]?.threadId));
+      if (x.payload.data.length == 0) {
+        localStorage.clear();
+        Navigate("/");
+      } else {
+        setactiveId(x.payload.data[0]);
+        dispatch(getThreadsById(x.payload.data[0]?.threadId));
+      }
     });
   }, []);
 
-  const [replyBox, setReplyBox] = useState(false);
-  const [activeId, setactiveId] = useState(0);
+  useEffect(() => {
+    // Add event listener for keydown when component mounts
+    window.addEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const handleKeyDown = (event) => {
+    if (
+      event.target.tagName === "TEXTAREA" ||
+      event.target.tagName === "INPUT"
+    ) {
+      return; // Exit the function early if the key event is from a textarea or input
+    }
+    if (event.key === "R" || event.key === "r") {
+      setReplyBox(!replyBox);
+    }
+
+    if (event.key === "D" || event.key === "d") {
+      setDeletePop(!deletePop);
+    }
+  };
 
   return isLoading ? (
     <div className="flex items-center justify-center w-full h-[100vh] text-gray-900 dark:text-gray-100 dark:bg-gray-950">
@@ -74,183 +117,222 @@ const Home = () => {
     </div>
   ) : (
     <>
-      <div className="flex max-h-full h-full">
-        <div className="flex flex-col w-[22%] mt-2 p-3 border-r border-r-[#33383F]">
-          <div className="flex items-center justify-between w-full mx-2 ">
-            <div className="flex items-center">
-              <h3 className="text-2xl text-blue-700 font-bold">All Inbox(s)</h3>
-              <IoIosArrowForward
-                size={17}
-                color="white"
-                stroke={10}
-                className="mt-1"
-              />{" "}
-            </div>
-            <div className="p-3 bg-white/20 mx-2 w-10 rounded-lg">
-              <FaRotateRight color="white" />
-            </div>
-          </div>
-          <div className="text-[#7F7F7F] ">
-            <span className="px-2 text-white font-semibold">25/25</span>Index
-            Selected
-          </div>
-          <form className="flex items-center justify-center my-4 mx-1">
-            <label for="simple-search" className="sr-only">
-              Search
-            </label>
-            <div className="relative w-full ">
-              <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
-                <svg
-                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    fill-rule="evenodd"
-                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                    clip-rule="evenodd"
-                  ></path>
-                </svg>
+      <div className="flex max-h-full h-full" onKeyDown={handleKeyDown}>
+        {deletePop ? (
+          <DeletePopup
+            deletePop={deletePop}
+            setDeletePop={setDeletePop}
+            dispatch={dispatch}
+            activeId={activeId}
+          />
+        ) : (
+          <></>
+        )}
+        <>
+          <div className="flex flex-col w-[22%] mt-2 p-3 border-r border-r-[#33383F]">
+            <div className="flex items-center justify-between w-full mx-2 ">
+              <div className="flex items-center">
+                <h3 className="text-2xl text-blue-700 font-bold">
+                  All Inbox(s)
+                </h3>
+                <IoIosArrowForward
+                  size={17}
+                  color="white"
+                  stroke={10}
+                  className="mt-1"
+                />{" "}
               </div>
-              <input
-                type="text"
-                id="simple-search"
-                className="bg-[#23272C] border border-white/10 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2  "
-                placeholder="Search"
-                required
-              />
+              <div className="p-3 bg-white/20 mx-2 w-10 rounded-lg">
+                <FaRotateRight color="white" />
+              </div>
             </div>
-          </form>
-          <div className="flex justify-between mb-6">
-            <div>
-              <p className="text-white font-semibold">
-                <span className="px-3 py-1 bg-[#222426] text-[#5C7CFA] font-bold rounded-full mr-2 ">
-                  25
-                </span>
-                New Replies
-              </p>
+            <div className="text-[#7F7F7F] ">
+              <span className="px-2 text-white font-semibold">25/25</span>
+              Index Selected
             </div>
-            <div className="flex text-white font-semibold gap-4">
-              <p>Newest</p>
-              <IoIosArrowForward
-                size={17}
-                color="white"
-                stroke={10}
-                className="mt-1"
-              />{" "}
-            </div>
-          </div>
-          <div className="flex flex-col overflow-y-auto border-t border-white/20">
-            {mailData?.map((x, index) => {
-              return (
-                <div onClick={() => dispatch(getThreadsById(x?.threadId))}>
-                  <ChatBox
-                    email={x?.fromEmail}
-                    date={dateFormat(x?.sentAt, "mmm d yyyy")}
-                    msg={x.subject.split(" |")[0]}
-                  />
+            <form className="flex items-center justify-center my-4 mx-1">
+              <label for="simple-search" className="sr-only">
+                Search
+              </label>
+              <div className="relative w-full ">
+                <div className="flex absolute inset-y-0 left-0 items-center pl-3 pointer-events-none">
+                  <svg
+                    className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-        <div className=" flex-1 flex flex-col h-[92%] relative">
-          <div className="py-3 px-3 bg-grey-lighter flex flex-row justify-between items-center border-b border-b-[#33383F]">
-            <div className="flex items-center">
-              <div>
-                <img
-                  className="w-10 h-10 rounded-full"
-                  src="https://darrenjameseeley.files.wordpress.com/2014/09/expendables3.jpeg"
+                <input
+                  type="text"
+                  id="simple-search"
+                  className="bg-[#23272C] border border-white/10 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2  "
+                  placeholder="Search"
+                  required
                 />
               </div>
-              <div className="ml-4">
-                <p className="text-white">Orlando</p>
-                <p className="text-white/50 text-sm">orladom@gmail.com</p>
+            </form>
+            <div className="flex justify-between mb-6">
+              <div>
+                <p className="text-white font-semibold">
+                  <span className="px-3 py-1 bg-[#222426] text-[#5C7CFA] font-bold rounded-full mr-2 ">
+                    25
+                  </span>
+                  New Replies
+                </p>
+              </div>
+              <div className="flex text-white font-semibold gap-4">
+                <p>Newest</p>
+                <IoIosArrowForward
+                  size={17}
+                  color="white"
+                  stroke={10}
+                  className="mt-1"
+                />{" "}
               </div>
             </div>
+            <div className="flex flex-col overflow-y-auto border-t border-white/20">
+              {mailData?.map((x, index) => {
+                return (
+                  <div
+                    onClick={() =>
+                      dispatch(getThreadsById(x?.threadId)).then(() => {
+                        setactiveId(x);
+                      })
+                    }
+                  >
+                    <ChatBox
+                      email={x?.fromEmail}
+                      date={dateFormat(x?.sentAt, "mmm d yyyy")}
+                      msg={x.subject.split(" |")[0]}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+          {threadLoading ? (
+            <div role="status" className="mx-auto my-auto">
+              <svg
+                aria-hidden="true"
+                class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                viewBox="0 0 100 101"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                  fill="currentColor"
+                />
+                <path
+                  d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                  fill="currentFill"
+                />
+              </svg>
+              <span class="sr-only">Loading...</span>
+            </div>
+          ) : (
+            <>
+              <div className=" flex-1 flex flex-col h-[92%] relative">
+                <div className="py-3 px-3 bg-grey-lighter flex flex-row justify-between items-center border-b border-b-[#33383F]">
+                  <div className="flex items-center">
+                    <div>
+                      <img
+                        className="w-10 h-10 rounded-full"
+                        src="https://darrenjameseeley.files.wordpress.com/2014/09/expendables3.jpeg"
+                      />
+                    </div>
+                    <div className="ml-4">
+                      <p className="text-white">{activeId.fromName}</p>
+                      <p className="text-white/50 text-sm">
+                        {activeId.fromEmail}
+                      </p>
+                    </div>
+                  </div>
 
-            <div className="flex gap-3">
-              <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
-                <span className="p-2 bg-yellow-100 rounded-full w-3 h-3">
-                  {/* <span className="px-1 py-0.5 bg-yellow-500 rounded-full "></span> */}
-                </span>
-                <p className="text-[#D3D7DB] text-sm">Meeting Completed</p>
-                <IoIosArrowForward
-                  size={17}
-                  color="white"
-                  stroke={10}
-                  className="mt-1 rotate-90"
-                />{" "}
-              </div>
-              <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
-                <p className="text-[#D3D7DB] text-sm">Move</p>
-                <IoIosArrowForward
-                  size={17}
-                  color="white"
-                  stroke={10}
-                  className="mt-1 rotate-90"
-                />{" "}
-              </div>
-              <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
-                <BsThreeDots size={17} color="white" stroke={10} className="" />{" "}
-              </div>
-            </div>
-          </div>
-          <div className="flex flex-col h-[85%]">
-            <div className="flex justify-center items-center mt-1">
-              <div className="p-[0.5px] bg-[#F8FAFC33] w-full"></div>
-              <p className="px-2 py-1 text-xs bg-white/20 text-white w-fit h-fit rounded">
-                {" "}
-                Today
-              </p>
-              <div className="p-[0.5px] bg-[#F8FAFC33] w-full"></div>
-            </div>
-            {threadLoading ? (
-              <div role="status" className="mx-auto my-auto">
-                <svg
-                  aria-hidden="true"
-                  class="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-                    fill="currentColor"
+                  <div className="flex gap-3">
+                    <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
+                      <span className="p-2 bg-yellow-100 rounded-full w-3 h-3">
+                        {/* <span className="px-1 py-0.5 bg-yellow-500 rounded-full "></span> */}
+                      </span>
+                      <p className="text-[#D3D7DB] text-sm">
+                        Meeting Completed
+                      </p>
+                      <IoIosArrowForward
+                        size={17}
+                        color="white"
+                        stroke={10}
+                        className="mt-1 rotate-90"
+                      />{" "}
+                    </div>
+                    <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
+                      <p className="text-[#D3D7DB] text-sm">Move</p>
+                      <IoIosArrowForward
+                        size={17}
+                        color="white"
+                        stroke={10}
+                        className="mt-1 rotate-90"
+                      />{" "}
+                    </div>
+                    <div className="flex gap-2 px-3 py-2 bg-[#1F1F1F] rounded items-center">
+                      <BsThreeDots
+                        size={17}
+                        color="white"
+                        stroke={10}
+                        className=""
+                      />{" "}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-col h-[85%]">
+                  <div className="flex justify-center items-center mt-1">
+                    <div className="p-[0.5px] bg-[#F8FAFC33] w-full"></div>
+                    <p className="px-2 py-1 text-xs bg-white/20 text-white w-fit h-fit rounded">
+                      {" "}
+                      Today
+                    </p>
+                    <div className="p-[0.5px] bg-[#F8FAFC33] w-full"></div>
+                  </div>
+                  {threadData?.map((x, index) => (
+                    <MsgBox thread={x} />
+                  ))}
+                </div>
+                {replyBox && (
+                  <ReplyBox
+                    replyBox={replyBox}
+                    setReplyBox={setReplyBox}
+                    setReplyText={setReplyText}
+                    replyText={replyText}
+                    activeId={activeId}
+                    subjectText={subjectText}
+                    setSubjectText={setSubjectText}
+                    dispatch={dispatch}
                   />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-                    fill="currentFill"
-                  />
-                </svg>
-                <span class="sr-only">Loading...</span>
+                )}
+                <div className="mt-auto">
+                  <div>
+                    {!replyBox && (
+                      <button
+                        className="text-white login_button flex  items-center px-8 py-2 gap-1 rounded mx-10 "
+                        onClick={() => setReplyBox(!replyBox)}
+                      >
+                        <MdOutlineReply color="white" size={22} />
+
+                        <p>Reply</p>
+                      </button>
+                    )}
+                  </div>
+                </div>
               </div>
-            ) : (
-              threadData?.map((x, index) => <MsgBox thread={x} />)
-            )}
-          </div>
-          {replyBox && (
-            <ReplyBox replyBox={replyBox} setReplyBox={setReplyBox} />
+            </>
           )}
-
-          <div className="mt-auto">
-            <div>
-              {!replyBox && (
-                <button
-                  className="text-white login_button flex  items-center px-8 py-2 gap-1 rounded mx-10 "
-                  onClick={() => {
-                    setReplyBox(!replyBox);
-                  }}
-                >
-                  <MdOutlineReply color="white" size={22} />
-
-                  <p>Reply</p>
-                </button>
-              )}
-            </div>
-          </div>
-        </div>
+        </>
         <div className="w-[20%] border-l flex flex-col">
           <p className="py-2 px-4 bg-[#23272C] rounded-lg my-4 mx-2 text-white font-semibold">
             Lead Details
@@ -370,7 +452,40 @@ const MsgBox = ({ thread }) => {
   );
 };
 
-const ReplyBox = ({ replyBox, setReplyBox }) => {
+const ReplyBox = ({
+  replyBox,
+  setReplyBox,
+  replyText,
+  setReplyText,
+  activeId,
+  subjectText,
+  setSubjectText,
+  dispatch,
+}) => {
+  const handleReply = () => {
+    if (subjectText == " " || subjectText == "") {
+      toast.error("Fill Subject");
+      return;
+    }
+    if (replyText == " " || replyText == "") {
+      toast.error("Fill Subject");
+      return;
+    }
+    const reply = {
+      toName: activeId?.fromName,
+      to: activeId?.fromEmail,
+      from: activeId?.toEmail,
+      fromName: "",
+      subject: subjectText,
+      body: replyText,
+      references: [activeId?.references],
+      inReplyTo: activeId?.messageId,
+    };
+    console.log(reply);
+    // dispatch(replyMail(activeId?.threadId, reply)).then((x) => {
+    //   console.log(x.payload);
+    // });
+  };
   return (
     <div className="absolute overflow-hidden bottom-0 w-[80%] bg-[#141517] rounded-xl mx-10">
       <div className="flex justify-between bg-[#23272C] py-2 px-6 rounded-t-lg">
@@ -386,19 +501,30 @@ const ReplyBox = ({ replyBox, setReplyBox }) => {
       </div>
       <p className="py-2 px-5 text-[#BAB9BD] border-b border-b-[#34383D]">
         To :{" "}
-        <span className="text-white font-medium pl-3"> jeanne@icloud.com</span>
+        <span className="text-white font-medium pl-3">
+          {" "}
+          {activeId?.fromEmail}
+        </span>
       </p>
       <p className="py-2 px-5 text-[#BAB9BD] border-b border-b-[#34383D]">
         From :{" "}
         <span className="text-white font-medium pl-3">
           {" "}
-          peter@reachinbox.com{" "}
+          {activeId?.toEmail}
         </span>
       </p>
-      <p className="py-2 px-5 text-[#BAB9BD] border-b border-b-[#34383D]">
-        Subject :{" "}
-        <span className="text-white font-medium pl-3"> Warmup Welcome </span>
-      </p>
+      <div className="flex gap-1 border-b border-b-[#34383D]">
+        <p className="py-2 px-5 text-[#BAB9BD] "> Subject : </p>
+        <input
+          type="text"
+          className="flex-1 p-0  bg-transparent text-white border-transparent focus:outline-none outline-none"
+          value={subjectText}
+          onChange={(e) => {
+            setSubjectText(e.target.value);
+          }}
+        />
+      </div>
+
       <textarea
         name=""
         id=""
@@ -406,9 +532,16 @@ const ReplyBox = ({ replyBox, setReplyBox }) => {
         cols="50"
         className="bg-transparent w-full focus:outline-none resize-none text-white p-5"
         placeholder="Hi Jinea"
+        value={replyText}
+        onChange={(e) => {
+          setReplyText(e.target.value);
+        }}
       ></textarea>
       <div className="flex gap-3 p-2 border-t border-[#2E3236]">
-        <button className="login_button flex items-center gap-4 px-8 rounded py-2 font-semibold text-white text-lg">
+        <button
+          onClick={handleReply}
+          className="login_button flex items-center gap-4 px-8 rounded py-2 font-semibold text-white text-lg"
+        >
           Send <IoMdArrowDropdown />
         </button>
         <button className=" flex items-center gap-3 rounded py-2 font-medium text-[#ADADAD]">
@@ -435,6 +568,45 @@ const ReplyBox = ({ replyBox, setReplyBox }) => {
         <img src={EmojiImg} alt="" />
         <img src={FrndImg} alt="" />
         <img src={CodeImg} alt="" />
+      </div>
+    </div>
+  );
+};
+
+const DeletePopup = ({ deletePop, setDeletePop, dispatch, activeId }) => {
+  return (
+    <div className="fixed top-0 left-0 backdrop-blur-md w-full h-full flex justify-center items-center bg-[#8484847D] bg-opacity-50 z-50">
+      <div className="bg-gradient-to-b from-[#141517] to-[#232528] p-8 rounded-lg items-center flex flex-col">
+        <h2 className="text-3xl font-bold text-white">Are you sure?</h2>
+        <p className="text-sm my-12 px-16 text-white">
+          Are you sure you want to delete this mail?
+        </p>
+        <div className="flex justify-center space-x-4">
+          <button
+            onClick={() => setDeletePop(!deletePop)}
+            className="bg-[#25262B] text-white px-16 py-4 rounded-md focus:outline-none"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={() =>
+              dispatch(deleteThreadsById(activeId.threadId)).then((x) => {
+                console.log(x.payload.message);
+                setDeletePop(false);
+                if (x.error) {
+                  toast.error(x.error.message);
+                }
+                if (x.payload.message) {
+                  toast.success(x.payload.message);
+                }
+                dispatch(getAllListMails());
+              })
+            }
+            className="bg-gradient-to-r from-[#FA5252] to-[#A91919] text-white px-16 py-4 rounded-md focus:outline-none"
+          >
+            Delete
+          </button>
+        </div>
       </div>
     </div>
   );
