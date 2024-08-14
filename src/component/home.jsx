@@ -38,6 +38,7 @@ import { Editable, Slate, withReact } from "slate-react";
 import { createEditor } from "slate";
 import JoditEditor from "jodit-react";
 import themeContext from "../theme/theme_context";
+import "react-quill/dist/quill.snow.css";
 
 const Home = () => {
   const Navigate = useNavigate();
@@ -87,6 +88,9 @@ const Home = () => {
   }, []);
 
   const handleKeyDown = (event) => {
+    if (event.target.closest(".ql-editor")) {
+      return; // Exit the function early if the key event is from the Quill editor
+    }
     if (
       event.target.tagName === "TEXTAREA" ||
       event.target.tagName === "INPUT"
@@ -830,13 +834,34 @@ const ReplyBox = ({
   dispatch,
   theme,
 }) => {
+  const modules = useMemo(
+    () => ({
+      toolbar: {
+        container: [
+          [{ font: [] }],
+          [{ header: [1, 2, 3, 4, 5, 6, false] }],
+          ["bold", "italic", "underline", "strike"],
+          [{ color: [] }, { background: [] }],
+          [{ script: "sub" }, { script: "super" }],
+          ["blockquote", "code-block"],
+          [{ list: "ordered" }, { list: "bullet" }],
+          [{ indent: "-1" }, { indent: "+1" }, { align: [] }],
+          ["link", "image"],
+          ["clean"],
+        ],
+      },
+    }),
+    []
+  );
+  var quillObj;
+
   const handleReply = () => {
     if (subjectText == " " || subjectText == "") {
       toast.error("Fill Subject");
       return;
     }
     if (replyText == " " || replyText == "") {
-      toast.error("Fill Subject");
+      toast.error("Fill Body");
       return;
     }
     const reply = {
@@ -935,7 +960,7 @@ const ReplyBox = ({
         />
       </div>
 
-      <textarea
+      {/* <textarea
         name=""
         id=""
         rows="10"
@@ -946,7 +971,18 @@ const ReplyBox = ({
         onChange={(e) => {
           setReplyText(e.target.value);
         }}
-      ></textarea>
+      ></textarea> */}
+
+      <ReactQuill
+        ref={(x) => {
+          quillObj = x;
+        }}
+        theme="snow"
+        className="h-28 text"
+        modules={modules}
+        value={replyText}
+        onChange={setReplyText}
+      />
       <div className="flex gap-3 p-2 border-t ">
         <button
           onClick={handleReply}

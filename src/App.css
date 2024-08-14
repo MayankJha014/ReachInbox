@@ -25,4 +25,19 @@
     @apply text-white font-semibold
 }
 
+.quill {
+    min-height: 10rem;
+    height: 100%;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .ql-container{
+    height: 16rem!important;
+  }
 
+
+  .quill{
+    height: 20rem!important;
+   }
