@@ -15,7 +15,7 @@ const LoginScreen = () => {
   const handleGoogleLogin = () => {
     // Redirect to Google login URL
     window.location.href =
-      "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=http://localhost:5173/loader";
+      "https://hiring.reachinbox.xyz/api/v1/auth/google-login?redirect_to=https://reach-inbox-eight.vercel.app/loader";
   };
   return (
     <main className="background_color screen">
