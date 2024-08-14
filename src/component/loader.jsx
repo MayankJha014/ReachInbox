@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, { useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import { resetMail } from "../redux/action/api";
+import themeContext from "../theme/theme_context";
 
 const Loader = () => {
   const Navigate = useNavigate();
@@ -22,9 +23,14 @@ const Loader = () => {
       });
     }
   }, []);
+  const theme = useContext(themeContext);
 
   return (
-    <div className="flex items-center justify-center w-full h-[100vh] text-gray-900 dark:text-gray-100 dark:bg-gray-950">
+    <div
+      className={`flex items-center justify-center w-full h-[100vh] text-gray-900  ${
+        theme.theme ? "bg-gray-950 " : "bg-white"
+      } `}
+    >
       <div>
         <h1 className="text-xl md:text-7xl font-bold flex items-center">
           L

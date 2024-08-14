@@ -11,8 +11,11 @@ import Tele from "../assets/tele.svg";
 import { TbReport } from "react-icons/tb";
 import { NavLink } from "react-router-dom";
 import Navbar from "./navbar";
+import themeContext from "../theme/theme_context";
 
 const Sidebar = ({ children }) => {
+  const theme = useContext(themeContext);
+
   const navIndex = [
     {
       icon: (
@@ -170,11 +173,21 @@ const Sidebar = ({ children }) => {
   return (
     <>
       <div className="w-full h-screen  flex">
-        <div className="absolute right-5 top-5 sm:hidden bg-black text-white shadow-lg w-6 h-6 rounded-full text-center">
+        <div
+          className={`absolute right-5 top-5 sm:hidden ${
+            theme.theme
+              ? " bg-[#1F1F1F] text-white"
+              : " bg-white text-[#5B5F66]"
+          }   shadow-lg w-6 h-6 rounded-full text-center`}
+        >
           X
         </div>
         <div
-          className={`bg-[#101113] h-full transition-all duration-300  ${"w-12"} `}
+          className={` ${
+            theme.theme
+              ? " bg-[#101113] text-white border-[#343A40]"
+              : " bg-[#FAFAFA] text-[#5B5F66] border-[#DEDEDE]"
+          }  h-full transition-all duration-300  w-12  border`}
         >
           <div className="flex flex-col min-h-full ">
             <div className="basis-16 flex justify-center items-center">
@@ -189,8 +202,13 @@ const Sidebar = ({ children }) => {
                     <NavLink
                       key={index}
                       to={x.link}
-                      className="contents"
-                      activeclassname="active"
+                      className={({ isActive }) =>
+                        isActive
+                          ? theme.theme
+                            ? "active"
+                            : "activeB"
+                          : "contents"
+                      }
                     >
                       <div className="flex items-center py-6 mx-auto w-full object-scale-down aspect-videoe">
                         {x.icon}
