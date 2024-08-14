@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import themeContext from "./theme_context";
 
 const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(false);
+  const [theme, setTheme] = useState(true);
 
   const updateTheme = () => {
     setTheme(!theme);
